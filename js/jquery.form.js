@@ -1,67 +1,15 @@
-/*!
- * jQuery Form Plugin
- * version: 3.32.0-2013.04.09
- * @requires jQuery v1.5 or later
- * Copyright (c) 2013 M. Alsup
- * Examples and documentation at: http://malsup.com/jquery/form/
- * Project repository: https://github.com/malsup/form
- * Dual licensed under the MIT and GPL licenses.
- * https://github.com/malsup/form#copyright-and-license
- */
-/*global ActiveXObject */
+
 ;(function($) {
 "use strict";
 
-/*
-    Usage Note:
-    -----------
-    Do not use both ajaxSubmit and ajaxForm on the same form.  These
-    functions are mutually exclusive.  Use ajaxSubmit if you want
-    to bind your own submit handler to the form.  For example,
 
-    $(document).ready(function() {
-        $('#myForm').on('submit', function(e) {
-            e.preventDefault(); // <-- important
-            $(this).ajaxSubmit({
-                target: '#output'
-            });
-        });
-    });
-
-    Use ajaxForm when you want the plugin to manage all the event binding
-    for you.  For example,
-
-    $(document).ready(function() {
-        $('#myForm').ajaxForm({
-            target: '#output'
-        });
-    });
-
-    You can also use ajaxForm with delegation (requires jQuery v1.7+), so the
-    form does not have to exist when you invoke ajaxForm:
-
-    $('#myForm').ajaxForm({
-        delegation: true,
-        target: '#output'
-    });
-
-    When using ajaxForm, the ajaxSubmit function will be invoked for you
-    at the appropriate time.
-*/
-
-/**
- * Feature detection
- */
 var feature = {};
 feature.fileapi = $("<input type='file'/>").get(0).files !== undefined;
 feature.formdata = window.FormData !== undefined;
 
 var hasProp = !!$.fn.prop;
 
-// attr2 uses prop when it can but checks the return type for
-// an expected string.  this accounts for the case where a form 
-// contains inputs with names like "action" or "method"; in those
-// cases "prop" returns the element
+
 $.fn.attr2 = function() {
     if ( ! hasProp )
         return this.attr.apply(this, arguments);
@@ -71,10 +19,7 @@ $.fn.attr2 = function() {
     return this.attr.apply(this, arguments);
 };
 
-/**
- * ajaxSubmit() provides a mechanism for immediately submitting
- * an HTML form using AJAX.
- */
+
 $.fn.ajaxSubmit = function(options) {
     /*jshint scripturl:true */
 
@@ -752,21 +697,6 @@ $.fn.ajaxSubmit = function(options) {
     }
 };
 
-/**
- * ajaxForm() provides a mechanism for fully automating form submission.
- *
- * The advantages of using this method instead of ajaxSubmit() are:
- *
- * 1: This method will include coordinates for <input type="image" /> elements (if the element
- *    is used to submit the form).
- * 2. This method will include the submit element's name/value data (for the element that was
- *    used to submit the form).
- * 3. This method binds the submit() method to the form for you.
- *
- * The options argument for ajaxForm works exactly as it does for ajaxSubmit.  ajaxForm merely
- * passes the options argument along after properly binding events for submit elements and
- * the form itself.
- */
 $.fn.ajaxForm = function(options) {
     options = options || {};
     options.delegation = options.delegation && $.isFunction($.fn.on);
@@ -847,17 +777,7 @@ $.fn.ajaxFormUnbind = function() {
     return this.unbind('submit.form-plugin click.form-plugin');
 };
 
-/**
- * formToArray() gathers form element data into an array of objects that can
- * be passed to any of the following ajax functions: $.get, $.post, or load.
- * Each object in the array has both a 'name' and 'value' property.  An example of
- * an array for a simple login form might be:
- *
- * [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
- *
- * It is this array that is passed to pre-submit callback functions provided to the
- * ajaxSubmit() and ajaxForm() methods.
- */
+
 $.fn.formToArray = function(semantic, elements) {
     var a = [];
     if (this.length === 0) {
@@ -928,19 +848,13 @@ $.fn.formToArray = function(semantic, elements) {
     return a;
 };
 
-/**
- * Serializes form data into a 'submittable' string. This method will return a string
- * in the format: name1=value1&amp;name2=value2
- */
+
 $.fn.formSerialize = function(semantic) {
     //hand off to jQuery.param for proper encoding
     return $.param(this.formToArray(semantic));
 };
 
-/**
- * Serializes all field elements in the jQuery object into a query string.
- * This method will return a string in the format: name1=value1&amp;name2=value2
- */
+
 $.fn.fieldSerialize = function(successful) {
     var a = [];
     this.each(function() {
@@ -962,44 +876,7 @@ $.fn.fieldSerialize = function(successful) {
     return $.param(a);
 };
 
-/**
- * Returns the value(s) of the element in the matched set.  For example, consider the following form:
- *
- *  <form><fieldset>
- *      <input name="A" type="text" />
- *      <input name="A" type="text" />
- *      <input name="B" type="checkbox" value="B1" />
- *      <input name="B" type="checkbox" value="B2"/>
- *      <input name="C" type="radio" value="C1" />
- *      <input name="C" type="radio" value="C2" />
- *  </fieldset></form>
- *
- *  var v = $('input[type=text]').fieldValue();
- *  // if no values are entered into the text inputs
- *  v == ['','']
- *  // if values entered into the text inputs are 'foo' and 'bar'
- *  v == ['foo','bar']
- *
- *  var v = $('input[type=checkbox]').fieldValue();
- *  // if neither checkbox is checked
- *  v === undefined
- *  // if both checkboxes are checked
- *  v == ['B1', 'B2']
- *
- *  var v = $('input[type=radio]').fieldValue();
- *  // if neither radio is checked
- *  v === undefined
- *  // if first radio is checked
- *  v == ['C1']
- *
- * The successful argument controls whether or not the field element must be 'successful'
- * (per http://www.w3.org/TR/html4/interact/forms.html#successful-controls).
- * The default value of the successful argument is true.  If this value is false the value(s)
- * for each element is returned.
- *
- * Note: This method *always* returns an array.  If no valid value can be determined the
- *    array will be empty, otherwise it will contain one or more values.
- */
+
 $.fn.fieldValue = function(successful) {
     for (var val=[], i=0, max=this.length; i < max; i++) {
         var el = this[i];
@@ -1057,23 +934,14 @@ $.fieldValue = function(el, successful) {
     return $(el).val();
 };
 
-/**
- * Clears the form data.  Takes the following actions on the form's input fields:
- *  - input text fields will have their 'value' property set to the empty string
- *  - select elements will have their 'selectedIndex' property set to -1
- *  - checkbox and radio inputs will have their 'checked' property set to false
- *  - inputs of type submit, button, reset, and hidden will *not* be effected
- *  - button elements will *not* be effected
- */
+
 $.fn.clearForm = function(includeHidden) {
     return this.each(function() {
         $('input,select,textarea', this).clearFields(includeHidden);
     });
 };
 
-/**
- * Clears the selected form elements.
- */
+
 $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
     var re = /^(?:color|date|datetime|email|month|number|password|range|search|tel|text|time|url|week)$/i; // 'hidden' is not in this list
     return this.each(function() {
@@ -1131,10 +999,6 @@ $.fn.enable = function(b) {
     });
 };
 
-/**
- * Checks/unchecks any matching checkboxes or radio buttons and
- * selects/deselects and matching option elements.
- */
 $.fn.selected = function(select) {
     if (select === undefined) {
         select = true;
